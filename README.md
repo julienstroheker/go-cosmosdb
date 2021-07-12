@@ -1,4 +1,4 @@
-#go-cosmosdb
+# go-cosmosdb
 
 Minimal go cosmosdb rest client generator.
 Repository helps to generate go clients for cosmosdb based on the go structs.
@@ -48,5 +48,3 @@ Run example:
 source ./env
 go run ./example/hello-world
 ```
-
-

@@ -8,6 +8,7 @@
 // cosmosdb/permission.go
 // cosmosdb/template.go
 // cosmosdb/template_fake.go
+// cosmosdb/storedprocedure.go
 // cosmosdb/trigger.go
 // cosmosdb/user.go
 package gencosmosdb
