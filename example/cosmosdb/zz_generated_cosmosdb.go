@@ -5,16 +5,11 @@ package cosmosdb
 import (
 	"bytes"
 	"context"
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/textproto"
-	"net/url"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/ugorji/go/codec"
@@ -69,16 +64,6 @@ func RetryOnPreconditionFailed(f func() error) (err error) {
 	return
 }
 
-func (c *databaseClient) authorizeRequest(req *http.Request, resourceType, resourceLink string) {
-	date := time.Now().UTC().Format("Mon, 02 Jan 2006 15:04:05 GMT")
-
-	h := hmac.New(sha256.New, c.masterKey)
-	fmt.Fprintf(h, "%s\n%s\n%s\n%s\n\n", strings.ToLower(req.Method), resourceType, resourceLink, strings.ToLower(date))
-
-	req.Header.Set("Authorization", url.QueryEscape(fmt.Sprintf("type=master&ver=1.0&sig=%s", base64.StdEncoding.EncodeToString(h.Sum(nil)))))
-	req.Header.Set("x-ms-date", date)
-}
-
 func (c *databaseClient) do(ctx context.Context, method, path, resourceType, resourceLink string, expectedStatusCode int, in, out interface{}, headers http.Header) error {
 	var resp *http.Response
 	var err error
@@ -112,7 +97,7 @@ func (c *databaseClient) do(ctx context.Context, method, path, resourceType, res
 }
 
 func (c *databaseClient) _do(ctx context.Context, method, path, resourceType, resourceLink string, expectedStatusCode int, in, out interface{}, headers http.Header) (*http.Response, error) {
-	req, err := http.NewRequestWithContext(ctx, method, "https://"+c.databaseAccount+".documents.azure.com/"+path, nil)
+	req, err := http.NewRequestWithContext(ctx, method, "https://"+c.databaseHostname+"/"+path, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +118,11 @@ func (c *databaseClient) _do(ctx context.Context, method, path, resourceType, re
 
 	req.Header.Set("x-ms-version", "2018-12-31")
 
-	c.authorizeRequest(req, resourceType, resourceLink)
+	c.mu.RLock()
+	if c.authorizer != nil {
+		c.authorizer.Authorize(req, resourceType, resourceLink)
+	}
+	c.mu.RUnlock()
 
 	resp, err := c.hc.Do(req)
 	if err != nil {
