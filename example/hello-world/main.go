@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/julienstroheker/go-cosmosdb/example/cosmosdb"
-	"github.com/julienstroheker/go-cosmosdb/example/types"
+	"github.com/leilifremont/go-cosmosdb/example/cosmosdb"
+	"github.com/leilifremont/go-cosmosdb/example/types"
 
 	"github.com/sirupsen/logrus"
 	"github.com/ugorji/go/codec"
