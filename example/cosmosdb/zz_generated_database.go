@@ -29,13 +29,6 @@ type Databases struct {
 	Databases  []*Database `json:"Databases,omitempty"`
 }
 
-// StoredProcedureParameters represents a Stored Procedure Parameters
-type StoredProcedureParameters struct {
-	// TODO
-	// It seems the property name of "Parameters" should not be set?
-	Parameters []string
-}
-
 // StoredProcedureResponse represents a Stored Procedure Response
 type StoredProcedureResponse struct {
 	Response string `json:"response,omitempty"`
@@ -113,21 +106,6 @@ func (c *databaseClient) SetAuthorizer(authorizer Authorizer) {
 
 func (c *databaseClient) Create(ctx context.Context, newdb *Database) (db *Database, err error) {
 	err = c.do(ctx, http.MethodPost, "dbs", "dbs", "", http.StatusCreated, &newdb, &db, nil)
-	return
-}
-
-func (c *databaseClient) ExecuteStoredProcedure(ctx context.Context, sprocsid string, partitionKey string, parameters []string) (db *StoredProcedureResponse, err error) {
-	storedProcedureParameters := StoredProcedureParameters{
-		// TODO
-		// It seems the property name of "Parameters" should not be set?
-		Parameters: parameters,
-	}
-	headers := http.Header{}
-	headers.Set("X-Ms-documentdb-partitionkey", partitionKey)
-
-	// TODO
-	// Double check the parameters is added to the request properly
-	err = c.do(ctx, http.MethodPost, "sprocs/"+sprocsid, "sprocs", "sprocs/"+sprocsid, http.StatusCreated, &storedProcedureParameters, &db, headers)
 	return
 }
 

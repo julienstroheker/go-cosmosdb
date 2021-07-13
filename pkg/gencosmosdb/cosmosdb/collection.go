@@ -203,6 +203,7 @@ type CollectionClient interface {
 	Delete(context.Context, *Collection) error
 	Replace(context.Context, *Collection) (*Collection, error)
 	PartitionKeyRanges(context.Context, string) (*PartitionKeyRanges, error)
+	ExecuteStoredProcedure(ctx context.Context, sprocsid string, partitionKey string, parameters []string) (db *StoredProcedureResponse, err error)
 }
 
 type collectionListIterator struct {
@@ -246,6 +247,16 @@ func (c *collectionClient) all(ctx context.Context, i CollectionIterator) (*Coll
 
 func (c *collectionClient) Create(ctx context.Context, newcoll *Collection) (coll *Collection, err error) {
 	err = c.do(ctx, http.MethodPost, c.path+"/colls", "colls", c.path, http.StatusCreated, &newcoll, &coll, nil)
+	return
+}
+
+func (c *databaseClient) ExecuteStoredProcedure(ctx context.Context, sprocsid string, partitionKey string, parameters []string) (db *StoredProcedureResponse, err error) {
+	headers := http.Header{}
+	headers.Set("X-Ms-documentdb-partitionkey", partitionKey)
+
+	// TODO
+	// Double check the request parameters and response are correct
+	err = c.do(ctx, http.MethodPost, "sprocs/"+sprocsid, "sprocs", "sprocs/"+sprocsid, http.StatusCreated, &parameters, &db, headers)
 	return
 }
 

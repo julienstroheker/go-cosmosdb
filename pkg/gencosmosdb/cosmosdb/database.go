@@ -107,16 +107,6 @@ func (c *databaseClient) Create(ctx context.Context, newdb *Database) (db *Datab
 	return
 }
 
-func (c *databaseClient) ExecuteStoredProcedure(ctx context.Context, sprocsid string, partitionKey string, parameters []string) (db *StoredProcedureResponse, err error) {
-	headers := http.Header{}
-	headers.Set("X-Ms-documentdb-partitionkey", partitionKey)
-
-	// TODO
-	// Double check the request parameters and response are correct
-	err = c.do(ctx, http.MethodPost, "sprocs/"+sprocsid, "sprocs", "sprocs/"+sprocsid, http.StatusCreated, &parameters, &db, headers)
-	return
-}
-
 func (c *databaseClient) List() DatabaseIterator {
 	return &databaseListIterator{databaseClient: c}
 }
