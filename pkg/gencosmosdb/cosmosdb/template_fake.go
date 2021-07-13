@@ -164,6 +164,16 @@ func (c *FakeTemplateClient) Create(ctx context.Context, partitionkey string, te
 	return c.apply(ctx, partitionkey, template, options, true)
 }
 
+// ExecuteStoredProcedure executes a stored procedure in the database
+func (c *FakeTemplateClient) ExecuteStoredProcedure(ctx context.Context, sprocsid string, partitionKey string, parameters []string) (db *StoredProcedureResponse, err error) {
+	headers := http.Header{}
+	headers.Set("X-Ms-documentdb-partitionkey", partitionKey)
+
+	// TODO
+	// Find out what should we do here for fake template？It seems not used in our code
+	return
+}
+
 // Replace replaces a Template in the database
 func (c *FakeTemplateClient) Replace(ctx context.Context, partitionkey string, template *pkg.Template, options *Options) (*pkg.Template, error) {
 	return c.apply(ctx, partitionkey, template, options, false)
