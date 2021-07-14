@@ -9,8 +9,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/ugorji/go/codec"
 
-	"github.com/leilifremont/go-cosmosdb/example/cosmosdb"
-	"github.com/leilifremont/go-cosmosdb/example/types"
+	"github.com/julienstroheker/go-cosmosdb/example/cosmosdb"
+	"github.com/julienstroheker/go-cosmosdb/example/types"
 )
 
 const (
