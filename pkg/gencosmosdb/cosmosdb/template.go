@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	pkg "github.com/julienstroheker/go-cosmosdb/pkg/gencosmosdb/cosmosdb/dummy"
+	pkg "github.com/leilifremont/go-cosmosdb/pkg/gencosmosdb/cosmosdb/dummy"
 )
 
 type templateClient struct {
@@ -113,6 +113,7 @@ func (c *templateClient) ExecuteStoredProcedure(ctx context.Context, sprocsid st
 	headers := http.Header{}
 	headers.Set("X-Ms-documentdb-partitionkey", `["`+partitionkey+`"]`)
 
+	response = &StoredProcedureResponse{Response: ""}
 	err = c.do(ctx, http.MethodPost, c.path+"/sprocs/"+sprocsid, "sprocs", c.path+"/sprocs/"+sprocsid, http.StatusOK, &parameters, response, headers)
 	return
 }

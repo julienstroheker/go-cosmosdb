@@ -1,4 +1,4 @@
-module github.com/julienstroheker/go-cosmosdb
+module github.com/leilifremont/go-cosmosdb
 
 go 1.14
 
