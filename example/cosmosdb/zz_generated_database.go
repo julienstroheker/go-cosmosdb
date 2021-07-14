@@ -29,11 +29,6 @@ type Databases struct {
 	Databases  []*Database `json:"Databases,omitempty"`
 }
 
-// StoredProcedureResponse represents a Stored Procedure Response
-type StoredProcedureResponse struct {
-	Response string `json:"response,omitempty"`
-}
-
 type databaseClient struct {
 	mu               sync.RWMutex
 	log              *logrus.Entry
