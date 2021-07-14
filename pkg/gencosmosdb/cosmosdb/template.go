@@ -109,11 +109,11 @@ func (c *templateClient) Create(ctx context.Context, partitionkey string, newtem
 }
 
 // ExecuteStoredProcedure executes a stored procedure in the database
-func (c *templateClient) ExecuteStoredProcedure(ctx context.Context, sprocsid string, partitionkey string, parameters []string) (db *StoredProcedureResponse, err error) {
+func (c *templateClient) ExecuteStoredProcedure(ctx context.Context, sprocsid string, partitionkey string, parameters []string) (response *StoredProcedureResponse, err error) {
 	headers := http.Header{}
 	headers.Set("X-Ms-documentdb-partitionkey", `["`+partitionkey+`"]`)
 
-	err = c.do(ctx, http.MethodPost, c.path+"/sprocs/"+sprocsid, "sprocs", c.path+"/sprocs/"+sprocsid, http.StatusOK, &parameters, &db, headers)
+	err = c.do(ctx, http.MethodPost, c.path+"/sprocs/"+sprocsid, "sprocs", c.path+"/sprocs/"+sprocsid, http.StatusOK, &parameters, response, headers)
 	return
 }
 
