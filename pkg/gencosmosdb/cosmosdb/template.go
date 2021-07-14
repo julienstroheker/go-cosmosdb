@@ -25,7 +25,7 @@ type TemplateClient interface {
 	Query(string, *Query, *Options) TemplateRawIterator
 	QueryAll(context.Context, string, *Query, *Options) (*pkg.Templates, error)
 	ChangeFeed(*Options) TemplateIterator
-	ExecuteStoredProcedure(ctx context.Context, sprocsid string, partitionKey string, parameters []string) (db *StoredProcedureResponse, err error)
+	ExecuteStoredProcedure(context.Context, string, string, []string) (*StoredProcedureResponse, error)
 }
 
 type templateChangeFeedIterator struct {
@@ -109,12 +109,10 @@ func (c *templateClient) Create(ctx context.Context, partitionkey string, newtem
 }
 
 // ExecuteStoredProcedure executes a stored procedure in the database
-func (c *templateClient) ExecuteStoredProcedure(ctx context.Context, sprocsid string, partitionKey string, parameters []string) (db *StoredProcedureResponse, err error) {
+func (c *templateClient) ExecuteStoredProcedure(ctx context.Context, sprocsid string, partitionkey string, parameters []string) (db *StoredProcedureResponse, err error) {
 	headers := http.Header{}
-	headers.Set("X-Ms-documentdb-partitionkey", partitionKey)
+	headers.Set("X-Ms-documentdb-partitionkey", `["`+partitionkey+`"]`)
 
-	// TODO
-	// Double check the request path, request parameters and response are correct
 	err = c.do(ctx, http.MethodPost, c.path+"/sprocs/"+sprocsid, "sprocs", c.path+"/sprocs/"+sprocsid, http.StatusOK, &parameters, &db, headers)
 	return
 }

@@ -167,13 +167,9 @@ func (c *FakePersonClient) Create(ctx context.Context, partitionkey string, pers
 }
 
 // ExecuteStoredProcedure executes a stored procedure in the database
-func (c *FakePersonClient) ExecuteStoredProcedure(ctx context.Context, sprocsid string, partitionKey string, parameters []string) (db *StoredProcedureResponse, err error) {
-	headers := http.Header{}
-	headers.Set("X-Ms-documentdb-partitionkey", partitionKey)
-
-	// TODO
-	// Find out what should we do here for fake person？It seems not used in our code
-	return
+func (c *FakePersonClient) ExecuteStoredProcedure(ctx context.Context, sprocsid string, partitionkey string, parameters []string) (db *StoredProcedureResponse, err error) {
+	// no-op for now
+	return nil, nil
 }
 
 // Replace replaces a Person in the database
