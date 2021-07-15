@@ -7,12 +7,14 @@ import (
 
 // StoredProcedure represents a stored procedure
 type StoredProcedure struct {
+	// ID is the user generated unique name for the stored procedure. No two stored procedures can have the same IDs.
 	ID         string `json:"id,omitempty"`
 	ResourceID string `json:"_rid,omitempty"`
 	Timestamp  int    `json:"_ts,omitempty"`
 	Self       string `json:"_self,omitempty"`
 	ETag       string `json:"_etag,omitempty"`
-	Body       string `json:"body,omitempty"`
+	// Body of the stored procedure.
+	Body string `json:"body,omitempty"`
 }
 
 // StoredProcedures represents stored procedures
