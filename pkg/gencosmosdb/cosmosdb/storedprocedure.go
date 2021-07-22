@@ -106,7 +106,7 @@ func (c *storedProcedureClient) Delete(ctx context.Context, storedprocedure *Sto
 }
 
 func (c *storedProcedureClient) Replace(ctx context.Context, newstoredprocedure *StoredProcedure) (storedprocedure *StoredProcedure, err error) {
-	err = c.do(ctx, http.MethodPost, c.path+"/sprocs/"+newstoredprocedure.ID, "sprocs", c.path+"/sprocs/"+newstoredprocedure.ID, http.StatusCreated, &newstoredprocedure, &storedprocedure, nil)
+	err = c.do(ctx, http.MethodPut, c.path+"/sprocs/"+newstoredprocedure.ID, "sprocs", c.path+"/sprocs/"+newstoredprocedure.ID, http.StatusOK, &newstoredprocedure, &storedprocedure, nil)
 	return
 }
 
