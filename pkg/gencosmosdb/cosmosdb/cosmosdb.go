@@ -52,9 +52,14 @@ var ErrNotImplemented = fmt.Errorf("not implemented")
 // RetryOnPreconditionFailed retries a function if it fails due to
 // PreconditionFailed
 func RetryOnPreconditionFailed(f func() error) (err error) {
+	return RetryOnHttpStatus(f, http.StatusPreconditionFailed)
+}
+
+// RetryOnHttpStatus retries a function based on Http status code
+func RetryOnHttpStatus(f func() error, statusCode int) (err error) {
 	for i := 0; i < 5; i++ {
 		err = f()
-		if !IsErrorStatusCode(err, http.StatusPreconditionFailed) {
+		if !IsErrorStatusCode(err, statusCode) {
 			return
 		}
 		time.Sleep(time.Duration(100*i) * time.Millisecond)
