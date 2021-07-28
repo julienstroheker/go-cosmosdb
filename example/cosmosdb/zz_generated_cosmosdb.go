@@ -22,6 +22,7 @@ type Options struct {
 	PostTriggers        []string
 	PartitionKeyRangeID string
 	Continuation        string
+	EnableScriptLogging bool
 }
 
 // Error represents an error

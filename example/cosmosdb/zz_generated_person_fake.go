@@ -167,7 +167,7 @@ func (c *FakePersonClient) Create(ctx context.Context, partitionkey string, pers
 }
 
 // ExecuteStoredProcedure executes a stored procedure in the database
-func (c *FakePersonClient) ExecuteStoredProcedure(ctx context.Context, sprocsid string, partitionkey string, enablescriptlogging bool, parameters []string, response interface{}) (err error) {
+func (c *FakePersonClient) ExecuteStoredProcedure(ctx context.Context, sprocsid string, partitionkey string, parameters []string, response interface{}, options *Options) (err error) {
 	// no-op for now
 	return
 }
