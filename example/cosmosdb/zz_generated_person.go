@@ -218,10 +218,7 @@ func (c *personClient) setOptions(options *Options, person *pkg.Person, headers 
 	if len(options.PartitionKeyRangeID) > 0 {
 		headers.Set("X-Ms-Documentdb-PartitionKeyRangeID", options.PartitionKeyRangeID)
 	}
-	if options.EnableScriptLogging {
-		headers.Set("X-Ms-documentdb-script-enable-logging", "true")
-	}
-
+	headers.Set("X-Ms-documentdb-script-enable-logging", "true")
 	return nil
 }
 
