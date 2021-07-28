@@ -27,7 +27,7 @@ type PersonClient interface {
 	Query(string, *Query, *Options) PersonRawIterator
 	QueryAll(context.Context, string, *Query, *Options) (*pkg.People, error)
 	ChangeFeed(*Options) PersonIterator
-	ExecuteStoredProcedure(context.Context, string, string, []string, interface{}, *Options) error
+	ExecuteStoredProcedure(context.Context, string, string, []string, interface{}) error
 }
 
 type personChangeFeedIterator struct {
@@ -111,14 +111,10 @@ func (c *personClient) Create(ctx context.Context, partitionkey string, newperso
 }
 
 // ExecuteStoredProcedure executes a stored procedure in the database
-func (c *personClient) ExecuteStoredProcedure(ctx context.Context, sprocsid string, partitionkey string, parameters []string, response interface{}, options *Options) (err error) {
+func (c *personClient) ExecuteStoredProcedure(ctx context.Context, sprocsid string, partitionkey string, parameters []string, response interface{}) (err error) {
 	headers := http.Header{}
 	headers.Set("X-Ms-documentdb-partitionkey", `["`+partitionkey+`"]`)
-
-	err = c.setOptions(options, nil, headers)
-	if err != nil {
-		return
-	}
+	headers.Set("X-Ms-documentdb-script-enable-logging", "true")
 
 	err = c.do(ctx, http.MethodPost, c.path+"/sprocs/"+sprocsid, "sprocs", c.path+"/sprocs/"+sprocsid, http.StatusOK, &parameters, response, headers)
 	return
@@ -218,7 +214,6 @@ func (c *personClient) setOptions(options *Options, person *pkg.Person, headers 
 	if len(options.PartitionKeyRangeID) > 0 {
 		headers.Set("X-Ms-Documentdb-PartitionKeyRangeID", options.PartitionKeyRangeID)
 	}
-	headers.Set("X-Ms-documentdb-script-enable-logging", "true")
 	return nil
 }
 
