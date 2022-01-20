@@ -125,7 +125,7 @@ func (c *databaseClient) _do(ctx context.Context, method, path, resourceType, re
 
 	c.mu.RLock()
 	if c.authorizer != nil {
-		c.authorizer.Authorize(req, resourceType, resourceLink)
+		c.authorizer.Authorize(ctx, req, resourceType, resourceLink)
 	}
 	c.mu.RUnlock()
 
