@@ -69,8 +69,8 @@ func (a *oauthAADAuthorizer) Authorize(ctx context.Context, req *http.Request, r
 	req.Header.Set("x-ms-date", date)
 }
 
-func NewOauthAADAuthorizer(ctx context.Context, token *adal.ServicePrincipalToken) (Authorizer, error) {
-	return &oauthAADAuthorizer{token: token}, nil
+func NewOauthAADAuthorizer(ctx context.Context, token *adal.ServicePrincipalToken) (Authorizer) {
+	return &oauthAADAuthorizer{token: token}
 }
 
 // Gets a refreshed token credential to use on authorizer
