@@ -15,14 +15,14 @@ import (
 )
 
 type Authorizer interface {
-	Authorize(context.Context, *http.Request, string, string)
+	Authorize(context.Context, *http.Request, string, string) error
 }
 
 type masterKeyAuthorizer struct {
 	masterKey []byte
 }
 
-func (a *masterKeyAuthorizer) Authorize(ctx context.Context, req *http.Request, resourceType, resourceLink string) {
+func (a *masterKeyAuthorizer) Authorize(ctx context.Context, req *http.Request, resourceType, resourceLink string) error {
 	date := time.Now().UTC().Format("Mon, 02 Jan 2006 15:04:05 GMT")
 
 	h := hmac.New(sha256.New, a.masterKey)
@@ -30,6 +30,8 @@ func (a *masterKeyAuthorizer) Authorize(ctx context.Context, req *http.Request, 
 
 	req.Header.Set("Authorization", url.QueryEscape(fmt.Sprintf("type=master&ver=1.0&sig=%s", base64.StdEncoding.EncodeToString(h.Sum(nil)))))
 	req.Header.Set("x-ms-date", date)
+
+	return nil
 }
 
 func NewMasterKeyAuthorizer(masterKey string) (Authorizer, error) {
@@ -45,8 +47,10 @@ type tokenAuthorizer struct {
 	token string
 }
 
-func (a *tokenAuthorizer) Authorize(ctx context.Context, req *http.Request, resourceType, resourceLink string) {
+func (a *tokenAuthorizer) Authorize(ctx context.Context, req *http.Request, resourceType, resourceLink string) error {
 	req.Header.Set("Authorization", url.QueryEscape(a.token))
+
+	return nil
 }
 
 func NewTokenAuthorizer(token string) Authorizer {
@@ -58,18 +62,20 @@ type oauthAADAuthorizer struct {
 	token *adal.ServicePrincipalToken
 }
 
-func (a *oauthAADAuthorizer) Authorize(ctx context.Context, req *http.Request, resourceType, resourceLink string) {
+func (a *oauthAADAuthorizer) Authorize(ctx context.Context, req *http.Request, resourceType, resourceLink string) error {
 	oauthToken, err := getTokenCredential(ctx, a.token)
 	if err != nil {
-		return
+		return fmt.Errorf("error authorizing request using OAuth AAD Authorizer: %w", err)
 	}
 	req.Header.Set("Authorization", url.QueryEscape(fmt.Sprintf("type=aad&ver=1.0&sig=%s", oauthToken)))
 
 	date := time.Now().UTC().Format("Mon, 02 Jan 2006 15:04:05 GMT")
 	req.Header.Set("x-ms-date", date)
+
+	return nil
 }
 
-func NewOauthAADAuthorizer(token *adal.ServicePrincipalToken) (Authorizer) {
+func NewOauthAADAuthorizer(token *adal.ServicePrincipalToken) Authorizer {
 	return &oauthAADAuthorizer{token: token}
 }
 
