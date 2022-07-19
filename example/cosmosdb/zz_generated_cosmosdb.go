@@ -125,9 +125,12 @@ func (c *databaseClient) _do(ctx context.Context, method, path, resourceType, re
 
 	c.mu.RLock()
 	if c.authorizer != nil {
-		c.authorizer.Authorize(ctx, req, resourceType, resourceLink)
+		err = c.authorizer.Authorize(ctx, req, resourceType, resourceLink)
 	}
 	c.mu.RUnlock()
+	if err != nil {
+		return nil, err
+	}
 
 	resp, err := c.hc.Do(req)
 	if err != nil {
