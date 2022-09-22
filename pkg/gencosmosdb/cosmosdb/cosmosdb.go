@@ -65,24 +65,23 @@ func RetryOnPreconditionFailed(f func() error) (err error) {
 	return RetryOnHttpStatus(f, http.StatusPreconditionFailed)
 }
 
-// RetryOnHttpStatus retries a function based on Http status code
-func RetryOnHttpStatus(f func() error, statusCode int) (err error) {
+// RetryOnHttpStatus retries a function based on Http status code or if the error message contains any of the errorString
+func RetryOnHttpStatus(f func() error, statusCode int, errorString ...string) (err error) {
 	for i := 0; i < 5; i++ {
 		err = f()
 		if !IsErrorStatusCode(err, statusCode) {
-			return
-		}
-		time.Sleep(time.Duration(100*i) * time.Millisecond)
-	}
-	return
-}
-
-// RetryOnHttpErrorMessage retries a function if the error message contains the errorString
-func RetryOnHttpErrorMessage(f func() error, errorString string) (err error) {
-	for i := 0; i < 5; i++ {
-		err = f()
-		if !IsErrorStatusMessage(err, errorString) {
-			return
+			var containsErrorString bool
+			if len(errorString) >= 1 {
+				for _, msg := range errorString {
+					if IsErrorStatusMessage(err, msg) {
+						containsErrorString = true
+						break
+					}
+				}
+			}
+			if !containsErrorString {
+				return
+			}
 		}
 		time.Sleep(time.Duration(100*i) * time.Millisecond)
 	}
