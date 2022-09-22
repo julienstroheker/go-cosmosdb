@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/textproto"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/ugorji/go/codec"
@@ -42,6 +43,15 @@ func IsErrorStatusCode(err error, statusCode int) bool {
 	return false
 }
 
+// IsErrorStatusMessage returns true if err is of type Error and its error message
+// contains errorString
+func IsErrorStatusMessage(err error, errorString string) bool {
+	if err, ok := err.(*Error); ok {
+		return strings.Contains(err.Error(), errorString)
+	}
+	return false
+}
+
 // ErrETagRequired is the error returned if the ETag field is not populate on a
 // PUT or DELETE operation
 var ErrETagRequired = fmt.Errorf("ETag is required")
@@ -60,6 +70,18 @@ func RetryOnHttpStatus(f func() error, statusCode int) (err error) {
 	for i := 0; i < 5; i++ {
 		err = f()
 		if !IsErrorStatusCode(err, statusCode) {
+			return
+		}
+		time.Sleep(time.Duration(100*i) * time.Millisecond)
+	}
+	return
+}
+
+// RetryOnHttpErrorMessage retries a function if the error message contains the errorString
+func RetryOnHttpErrorMessage(f func() error, errorString string) (err error) {
+	for i := 0; i < 5; i++ {
+		err = f()
+		if !IsErrorStatusMessage(err, errorString) {
 			return
 		}
 		time.Sleep(time.Duration(100*i) * time.Millisecond)
