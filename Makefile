@@ -2,7 +2,10 @@ generate:
 	go generate ./pkg/...
 	go generate ./example/...
 
-test: generate
+e2etest: generate
 	go test -count=1 -v ./example
 
-.PHONY: generate test
+unittest: generate 
+	 ginkgo -r -v -trace -cover pkg
+
+.PHONY: generate e2etest unittest
