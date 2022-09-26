@@ -49,7 +49,7 @@ func IsErrorStatusCode(err error, statusCode int) bool {
 // contains errorString
 func IsErrorStatusMessage(err error, errorString string) bool {
 	if err, ok := err.(*Error); ok {
-		return strings.Contains(err.Error(), errorString)
+		return strings.Contains(err.Message, errorString)
 	}
 	return false
 }
