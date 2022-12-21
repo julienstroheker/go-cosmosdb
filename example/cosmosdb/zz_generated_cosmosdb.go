@@ -48,10 +48,14 @@ func IsErrorStatusCode(err error, statusCode int) bool {
 // IsErrorStatusMessage returns true if err is of type Error and its error message
 // contains errorString
 func IsErrorStatusMessage(err error, errorString string) bool {
-	if err, ok := err.(*Error); ok {
-		return strings.Contains(err.Message, errorString)
+	if err == nil {
+		return false
 	}
-	return false
+	if err2, ok := err.(*Error); ok {
+		return strings.Contains(err2.Message, errorString)
+	} else {
+		return strings.Contains(err.Error(), errorString)
+	}
 }
 
 // ErrETagRequired is the error returned if the ETag field is not populate on a
