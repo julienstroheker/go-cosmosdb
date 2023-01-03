@@ -66,7 +66,7 @@ func RetryOnHttpStatusOrError(f func() error, statusCode int, errorString ...str
 			var containsErrorString bool
 			if len(errorString) >= 1 {
 				for _, msg := range errorString {
-					if err != nil && strings.Contains(err.Error(), msg) {
+					if err != nil && strings.Contains(strings.ToLower(err.Error()), strings.ToLower(msg)) {
 						containsErrorString = true
 						break
 					}
