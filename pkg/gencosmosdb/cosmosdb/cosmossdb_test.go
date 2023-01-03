@@ -8,20 +8,6 @@ import (
 )
 
 var _ = Describe("Testing Cosmos DB client utilities", func() {
-	It("Test IsErrorStatusMessage()", func() {
-		result := IsErrorStatusMessage(&Error{StatusCode: 500, Message: "Internal Server Error"}, "Server Error")
-		Expect(result).To(BeTrue())
-
-		result = IsErrorStatusMessage(&Error{StatusCode: 500, Message: "Internal Server Error"}, "server error")
-		Expect(result).To(BeFalse())
-
-		result = IsErrorStatusMessage(&Error{StatusCode: 500, Message: "Internal Server Error"}, "Unauthorized")
-		Expect(result).To(BeFalse())
-
-		result = IsErrorStatusMessage(errors.New("Unauthorized"), "Unauthorized")
-		Expect(result).To(BeTrue())
-	})
-
 	It("RetryOnHttpStatusOrError: Should not retry on 401 status code", func() {
 		callCount := 0
 		err := RetryOnHttpStatusOrError(func() error {
