@@ -51,11 +51,7 @@ func IsErrorStatusMessage(err error, errorString string) bool {
 	if err == nil {
 		return false
 	}
-	if err2, ok := err.(*Error); ok {
-		return strings.Contains(err2.Message, errorString)
-	} else {
-		return strings.Contains(err.Error(), errorString)
-	}
+	return strings.Contains(err.Error(), errorString)
 }
 
 // ErrETagRequired is the error returned if the ETag field is not populate on a
