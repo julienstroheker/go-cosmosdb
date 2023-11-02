@@ -12,7 +12,7 @@ type Person struct {
 	Metadata    map[string]interface{} `json:"_metadata,omitempty"`
 
 	Surname    string `json:"surname,omitempty"`
-	UpdateTime string `json:"updateTime,omitempty"`
+	UpdateTime int    `json:"updateTime,omitempty"`
 }
 
 // People represents people
