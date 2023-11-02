@@ -3,15 +3,14 @@ package cosmosdb
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/textproto"
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/ugorji/go/codec"
 )
 
 // Options represents API options
@@ -119,11 +118,11 @@ func (c *databaseClient) _do(ctx context.Context, method, path, resourceType, re
 
 	if in != nil {
 		buf := &bytes.Buffer{}
-		err := codec.NewEncoder(buf, c.jsonHandle).Encode(in)
+		err := json.NewEncoder(buf).Encode(in)
 		if err != nil {
 			return nil, err
 		}
-		req.Body = ioutil.NopCloser(buf)
+		req.Body = io.NopCloser(buf)
 		req.Header.Set("Content-Type", "application/json")
 	}
 
@@ -151,7 +150,7 @@ func (c *databaseClient) _do(ctx context.Context, method, path, resourceType, re
 		resp.Body.Close()
 	}()
 
-	d := codec.NewDecoder(resp.Body, c.jsonHandle)
+	d := json.NewDecoder(resp.Body)
 
 	if resp.StatusCode != expectedStatusCode {
 		err := &Error{}

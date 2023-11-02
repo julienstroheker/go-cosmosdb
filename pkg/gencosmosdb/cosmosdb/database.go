@@ -6,7 +6,6 @@ import (
 	"sync"
 
 	"github.com/sirupsen/logrus"
-	"github.com/ugorji/go/codec"
 )
 
 // Database represents a database
@@ -31,7 +30,6 @@ type databaseClient struct {
 	mu               sync.RWMutex
 	log              *logrus.Entry
 	hc               *http.Client
-	jsonHandle       *codec.JsonHandle
 	databaseHostname string
 	authorizer       Authorizer
 	maxRetries       int
@@ -59,11 +57,10 @@ type DatabaseIterator interface {
 }
 
 // NewDatabaseClient returns a new database client
-func NewDatabaseClient(log *logrus.Entry, hc *http.Client, jsonHandle *codec.JsonHandle, databaseHostname string, authorizer Authorizer) DatabaseClient {
+func NewDatabaseClient(log *logrus.Entry, hc *http.Client, databaseHostname string, authorizer Authorizer) DatabaseClient {
 	return &databaseClient{
 		log:              log,
 		hc:               hc,
-		jsonHandle:       jsonHandle,
 		databaseHostname: databaseHostname,
 		authorizer:       authorizer,
 		maxRetries:       10,

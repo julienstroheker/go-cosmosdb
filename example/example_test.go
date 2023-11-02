@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/sirupsen/logrus"
-	"github.com/ugorji/go/codec"
 
 	"github.com/julienstroheker/go-cosmosdb/example/cosmosdb"
 	"github.com/julienstroheker/go-cosmosdb/example/types"
@@ -44,20 +43,12 @@ func TestE2E(t *testing.T) {
 		t.Fatal("must set COSMOSDB_KEY")
 	}
 
-	jsonHandle := &codec.JsonHandle{
-		BasicHandle: codec.BasicHandle{
-			DecodeOptions: codec.DecodeOptions{
-				ErrorIfNoField: true,
-			},
-		},
-	}
-
 	keyAuthorizer, err := cosmosdb.NewMasterKeyAuthorizer(key)
 	if err != nil {
 		t.Error(err)
 	}
 
-	dbc := cosmosdb.NewDatabaseClient(log, http.DefaultClient, jsonHandle, account+".documents.azure.com", keyAuthorizer)
+	dbc := cosmosdb.NewDatabaseClient(log, http.DefaultClient, account+".documents.azure.com", keyAuthorizer)
 
 	db, err := dbc.Create(ctx, &cosmosdb.Database{ID: dbid})
 	if err != nil {
@@ -273,7 +264,7 @@ func TestE2E(t *testing.T) {
 		t.Error(docs)
 	}
 
-	tokendbc := cosmosdb.NewDatabaseClient(log, http.DefaultClient, jsonHandle, account+".documents.azure.com", cosmosdb.NewTokenAuthorizer(perm.Token))
+	tokendbc := cosmosdb.NewDatabaseClient(log, http.DefaultClient, account+".documents.azure.com", cosmosdb.NewTokenAuthorizer(perm.Token))
 	tokencollc := cosmosdb.NewCollectionClient(tokendbc, dbid)
 	tokendc := cosmosdb.NewPersonClient(tokencollc, collid)
 

@@ -1,6 +1,6 @@
 module github.com/julienstroheker/go-cosmosdb
 
-go 1.18
+go 1.20
 
 require (
 	github.com/Azure/go-autorest/autorest/adal v0.9.11

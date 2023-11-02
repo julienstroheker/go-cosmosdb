@@ -10,7 +10,6 @@ import (
 	"github.com/julienstroheker/go-cosmosdb/example/types"
 
 	"github.com/sirupsen/logrus"
-	"github.com/ugorji/go/codec"
 )
 
 const (
@@ -54,15 +53,6 @@ func run(ctx context.Context, log *logrus.Entry) error {
 		return fmt.Errorf("must set COSMOSDB_KEY")
 	}
 
-	// jsonHandle enables custom encoders. In example field encryption or marshaling
-	jsonHandle := &codec.JsonHandle{
-		BasicHandle: codec.BasicHandle{
-			DecodeOptions: codec.DecodeOptions{
-				ErrorIfNoField: true,
-			},
-		},
-	}
-
 	// create authorizer for rest calls
 	keyAuthorizer, err := cosmosdb.NewMasterKeyAuthorizer(key)
 	if err != nil {
@@ -70,7 +60,7 @@ func run(ctx context.Context, log *logrus.Entry) error {
 	}
 
 	// get database client
-	dbc := cosmosdb.NewDatabaseClient(log, http.DefaultClient, jsonHandle, account+".documents.azure.com", keyAuthorizer)
+	dbc := cosmosdb.NewDatabaseClient(log, http.DefaultClient, account+".documents.azure.com", keyAuthorizer)
 
 	// create database "example-database"
 	db, err := dbc.Create(ctx, &cosmosdb.Database{ID: dbid})
