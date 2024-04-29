@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/go-autorest/autorest/adal"
 )
 
@@ -67,10 +69,7 @@ func (a *oauthAADAuthorizer) Authorize(ctx context.Context, req *http.Request, r
 	if err != nil {
 		return fmt.Errorf("error authorizing request using OAuth AAD Authorizer: %w", err)
 	}
-	req.Header.Set("Authorization", url.QueryEscape(fmt.Sprintf("type=aad&ver=1.0&sig=%s", oauthToken)))
-
-	date := time.Now().UTC().Format("Mon, 02 Jan 2006 15:04:05 GMT")
-	req.Header.Set("x-ms-date", date)
+	setAADHeaders(req, oauthToken)
 
 	return nil
 }
@@ -87,4 +86,56 @@ func getTokenCredential(ctx context.Context, token *adal.ServicePrincipalToken) 
 	}
 	oauthToken := token.OAuthToken()
 	return oauthToken, nil
+}
+
+type oauthMsalAADAuthorizer struct {
+	token               azcore.TokenCredential
+	cosmosDBInstanceURI string
+}
+
+func NewOauthMsalAADAuthorizer(token azcore.TokenCredential, cosmosDBInstanceURI string) Authorizer {
+	return &oauthMsalAADAuthorizer{
+		token:               token,
+		cosmosDBInstanceURI: cosmosDBInstanceURI,
+	}
+}
+
+func (a *oauthMsalAADAuthorizer) Authorize(ctx context.Context, req *http.Request, resourceType, resourceLink string) error {
+	oauthToken, err := getMsalToken(ctx, a.token, a.cosmosDBInstanceURI)
+	if err != nil {
+		return fmt.Errorf("error authorizing request using OAuth AAD Authorizer: %w", err)
+	}
+	setAADHeaders(req, oauthToken)
+
+	return nil
+}
+
+func getMsalToken(ctx context.Context, tokenCred azcore.TokenCredential, cosmosDBInstanceURI string) (string, error) {
+	scopes, err := createScopeFromEndpoint(cosmosDBInstanceURI)
+	if err != nil {
+		return "", fmt.Errorf("error creating scopes: %w", err)
+	}
+	token, err := tokenCred.GetToken(ctx, policy.TokenRequestOptions{
+		Scopes: scopes,
+	})
+
+	if err != nil {
+		return "", fmt.Errorf("error getting token: %w", err)
+	}
+	return token.Token, nil
+}
+
+func createScopeFromEndpoint(endpoint string) ([]string, error) {
+	u, err := url.Parse(endpoint)
+	if err != nil {
+		return nil, err
+	}
+	return []string{fmt.Sprintf("%s://%s/.default", u.Scheme, u.Hostname())}, nil
+}
+
+func setAADHeaders(req *http.Request, oauthToken string) {
+	req.Header.Set("Authorization", url.QueryEscape(fmt.Sprintf("type=aad&ver=1.0&sig=%s", oauthToken)))
+
+	date := time.Now().UTC().Format("Mon, 02 Jan 2006 15:04:05 GMT")
+	req.Header.Set("x-ms-date", date)
 }
