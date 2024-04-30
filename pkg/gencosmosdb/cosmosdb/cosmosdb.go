@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"regexp"
 
 	"github.com/ugorji/go/codec"
 )
@@ -58,25 +59,31 @@ func RetryOnPreconditionFailed(f func() error) (err error) {
 
 // RetryOnHttpStatus retries a function based on Http status code or if the error message contains any of the errorString
 func RetryOnHttpStatusOrError(f func() error, statusCode int, errorString ...string) (err error) {
-	for i := 0; i < 5; i++ {
-		err = f()
-		if !IsErrorStatusCode(err, statusCode) {
-			var containsErrorString bool
-			if len(errorString) >= 1 {
-				for _, msg := range errorString {
-					if err != nil && strings.Contains(strings.ToLower(err.Error()), strings.ToLower(msg)) {
-						containsErrorString = true
-						break
-					}
-				}
-			}
-			if !containsErrorString {
-				return
-			}
-		}
-		time.Sleep(time.Duration(100*i) * time.Millisecond)
-	}
-	return
+    for i := 0; i < 5; i++ {
+        err = f()
+        if !IsErrorStatusCode(err, statusCode) {
+            var matchesErrorString bool
+            if len(errorString) >= 1 {
+                for _, pattern := range errorString {
+                    if err != nil {
+                        match, regexErr := regexp.MatchString(pattern, err.Error())
+                        if regexErr != nil {
+                            return regexErr
+                        }
+                        if match {
+                            matchesErrorString = true
+                            break
+                        }
+                    }
+                }
+            }
+            if !matchesErrorString {
+                return
+            }
+        }
+        time.Sleep(time.Duration(100*i) * time.Millisecond)
+    }
+    return
 }
 
 func (c *databaseClient) do(ctx context.Context, method, path, resourceType, resourceLink string, expectedStatusCode int, in, out interface{}, headers http.Header) error {
